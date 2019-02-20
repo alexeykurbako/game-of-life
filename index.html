@@ -1,0 +1,142 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+ <meta charset="UTF-8">
+ <title>Life Game</title>
+    <link rel="stylesheet" href="style.css"/>
+	<style>
+		.life {
+		    margin-left: 26%;
+			height: 700px;
+			border: 3px solid black;
+			margin-top: 4%;  
+		}
+		.zagolovok {
+			margin-top: 2%;  
+			text-align: center;
+			font-family: 'Merienda', cursive;
+			font-size: 60px;
+		}
+		.menu {
+		    margin-left: 42%;
+		}
+	</style>
+</head>
+	<body>
+	<div class = "zagolovok">LifeSimulation</div>
+	<canvas id="c1" width="700" height="700" class = "life" ></canvas>
+	<div class = "menu">
+		<p>Amount of generations: <span id="count">0</span></p>
+			<button id="start">Start</button>
+			<button id="stop">Stop</button>
+			<button id="generate">Gener</button>
+		</div>
+		
+		<script>
+			var canvas = document.getElementById('c1'); // получим canvas
+			var ctx = canvas.getContext('2d');
+			const amountOfCells = 140;
+			const cellSize = 5;
+			var mas = [];
+
+			var count = 0;
+			var timer;
+
+			canvas.onclick = function(event) { //This function create new life cell
+				var x = event.offsetX; 
+				var y = event.offsetY;
+				
+				x = Math.floor(x / cellSize); 
+				y = Math.floor(y / cellSize);
+				 
+				mas[y][x] = 1; 
+				
+				console.log(mas);
+				drawField();   
+			}
+
+			function goLife() {  //generate two-dimensional array 
+				
+				var n = amountOfCells, m = amountOfCells; 
+			   
+				for(var i = 0; i < m; i++) {
+					mas[i]=[]; 
+					for(var j = 0; j < n; j++) {
+						mas[i][j] = 0;
+					}
+				}
+			}
+			
+			function randLife(){  //create random life cells
+				const amountOfLifes = prompt("Input amount of lifes");
+				for(var i = 0; i < amountOfLifes; i++){
+					var coord_x = Math.floor(Math.random()*amountOfCells);
+					var coord_y = Math.floor(Math.random()*amountOfCells);
+					mas[coord_x][coord_y] = 1;	
+					drawField();
+				}
+			}
+
+			goLife();
+			
+			function drawField() { //drawing field field using canvas
+				ctx.clearRect(0, 0, 1000, 1000);
+				for(var i = 0; i < amountOfCells; i++) {
+					for(var j = 0; j < amountOfCells; j++) {
+						if (mas[i][j] == 1) {
+							ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
+						}
+					}
+				}
+			}
+
+			function startLife() { //calculate next generation of life cells
+				var temporary_array = [];
+			   
+				for(var i = 0; i < amountOfCells; i++) {
+					temporary_array[i]=[];
+				   
+					for (var j = 0; j < amountOfCells; j++){
+						var neighbors = 0;
+						if (mas[edgeCalcLeft(i) - 1][j] == 1) neighbors++;	//up
+						if (mas[i][edgeCalcRight(j) + 1] == 1) neighbors++;	//right
+						if (mas[edgeCalcRight(i) + 1][j] == 1) neighbors++;	//bottom
+						if (mas[i][edgeCalcLeft(j) - 1] == 1) neighbors++;	//left
+						if (mas[edgeCalcLeft(i) - 1][edgeCalcRight(j) + 1] == 1) neighbors++;
+						if (mas[edgeCalcRight(i) + 1][edgeCalcRight(j) + 1] == 1) neighbors++;
+						if (mas[edgeCalcRight(i) + 1][edgeCalcLeft(j) - 1] == 1) neighbors++;
+						if (mas[edgeCalcLeft(i) - 1][edgeCalcLeft(j) - 1] == 1) neighbors++;
+						
+						if(mas[i][j] == 1)
+							(neighbors == 2 || neighbors == 3) ? temporary_array[i][j] = 1 : temporary_array[i][j] = 0;
+						if(mas[i][j] == 0)
+							neighbors == 3 ? temporary_array[i][j] = 1 : temporary_array[i][j] = 0;
+					}
+				}
+			   
+				mas = temporary_array;
+				
+				drawField();
+				count++;
+				document.getElementById('count').innerHTML = count;
+				timer = setTimeout(startLife, 10);
+			}
+
+			function edgeCalcLeft(i){
+				if(i == 0)
+					return amountOfCells;
+				else return i;
+			}
+			
+			function edgeCalcRight(i){
+				if(i == amountOfCells - 1)
+					return -1;
+				else return i;
+			}
+			
+			document.getElementById('start').onclick = startLife;	
+			document.getElementById('stop').onclick = startLife;
+			document.getElementById('generate').onclick = randLife;
+		</script>
+	</body>
+</html>
